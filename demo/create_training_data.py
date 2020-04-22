@@ -161,7 +161,6 @@ def gui_annotate(training_data_dir_path, index, file_path, file_content):
                 if data_type == -1 or label == -1:
                     continue
 
-                print('write line: ', line)
                 f.write(line_types[data_type] + '\t' + line_labels[label] + '\t' + line_content)
                 f.write('\n')
 
