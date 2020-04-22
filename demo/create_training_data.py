@@ -58,6 +58,7 @@ class AnnotatorGui(Frame):
         # Index Number
         line_index_label = Label(self.frame, width=7, height=1, text=str(line_index))
         line_index_label.grid(row=line_index, column=0, sticky=W + E + N + S)
+        self.line_index_label_list.append(line_index_label)
 
         # Content Text
         Grid.rowconfigure(self.frame, line_index, weight=1)
@@ -65,30 +66,54 @@ class AnnotatorGui(Frame):
         line_content_text = Text(self.frame, width=100, height=1)
         line_content_text.insert(INSERT, line_content)
         line_content_text.grid(row=line_index, column=1, sticky=W + E + N + S)
+        self.line_content_text_list.append(line_content_text)
 
-        def line_type_button_click(_line_index):
-            line_type = table_content[_line_index][1]
-            line_type = (line_type + 1) % len(line_types)
+        def line_type_button_click(_line_index, _forced_line_type=None):
+
+            if _forced_line_type is None:
+                line_type = table_content[_line_index][1]
+                line_type = (line_type + 1) % len(line_types)
+            else:
+                line_type = _forced_line_type
+
             table_content[_line_index][1] = line_type
-            line_type_button["text"] = "Type: " + line_types[line_type]
 
-        def line_label_button_click(_line_index):
-            line_label = table_content[_line_index][2]
-            line_label = (line_label + 1) % len(line_labels)
+            # Changing the text of the button to reflect the new line type
+            self.line_type_button_list[_line_index].config(text="Type: " + line_types[line_type])
+
+            # Recursively calling all the buttons below it to bulk update the fields below
+            if _line_index < len(table_content) - 1:
+                line_type_button_click(_line_index + 1, line_type)
+
+        def line_label_button_click(_line_index, _forced_line_label=None):
+
+            if _forced_line_label is None:
+                line_label = table_content[_line_index][2]
+                line_label = (line_label + 1) % len(line_labels)
+            else:
+                line_label = _forced_line_label
+
+            # Changing the text of the button to reflect the new line label
             table_content[_line_index][2] = line_label
-            line_label_button["text"] = "Type: " + line_labels[line_label]
+            self.line_label_button_list[_line_index].config(text="Type: " + line_labels[line_label])
+
+            # Recursively calling all the buttons below it to bulk update the fields below
+            if _line_index < len(table_content) - 1:
+                line_label_button_click(_line_index + 1, line_label)
 
         # Type Button
         Grid.rowconfigure(self.frame, line_index, weight=1)
         Grid.columnconfigure(self.frame, 2, weight=1)
         line_type_button = Button(self.frame, text="Type: Unknown", width=25, command=lambda: line_type_button_click(line_index))
         line_type_button.grid(row=line_index, column=2, sticky=W + E + N + S)
+        self.line_type_button_list.append(line_type_button)
 
         # Label Button
         Grid.rowconfigure(self.frame, line_index, weight=1)
         Grid.columnconfigure(self.frame, 3, weight=1)
         line_label_button = Button(self.frame, text='Label: Unknown', width=25, command=lambda: line_label_button_click(line_index))
         line_label_button.grid(row=line_index, column=3, sticky=W + E + N + S)
+        self.line_label_button_list.append(line_label_button)
 
         if line[1] != -1:
             line_type_button["text"] = "Type: " + line_types[line[1]]
